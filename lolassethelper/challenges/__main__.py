@@ -28,7 +28,7 @@ regions = [
 
 async def main():
     # Check if the output folder exists
-    createFolder("output")
+    createFolder("output/challenges")
 
     tasks = []
     data = {}

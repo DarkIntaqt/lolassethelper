@@ -3,15 +3,13 @@ import asyncio
 import json
 from ..helper.createFolder import createFolder
 from .getChallenge import getChallenge
-
+from .getTitles import getTitles
 
 try:
-    from .. import config
+    from ..config import apiKey, translateChallenges
 except ImportError:
     # Check if the config exists
-    print(
-        "ERROR: lolassethelper/config.py doesn't exist or is missing the variable apiKey"
-    )
+    print("ERROR: lolassethelper/config.py doesn't exist")
     print(
         "How to fix this issue: https://github.com/DarkIntaqt/lolassethelper/blob/master/SETUP.md"
     )
@@ -21,34 +19,14 @@ except ImportError:
 async def getChallengePerRegion(region, data, session):
 
     challenges = {}
-    titles = []
-
-    # Parse Titles
-    for id, title in data["titles"].items():
-        id = str(title["itemId"])
-        challengeId = 0
-        challengeTier = 0
-
-        # Check for apprentice title
-        if len(id) > 3:
-            challengeId = int(id[0 : (len(id) - 2)])
-            challengeTier = int(id[(len(id) - 2) : len(id)])
-
-        titles.append(
-            {
-                "title": title["name"],
-                "titleId": int(id),
-                "challengeId": challengeId,
-                "challengeTier": challengeTier,
-            }
-        )
+    titles = await getTitles(data["titles"])
 
     # A list of challenges provided by the Riot API
     challengeList = []
     challengePercentiles = []
 
     async with session.get(
-        f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/config?api_key={config.apiKey}"
+        f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/config?api_key={apiKey}"
     ) as response:
         if response.status == 200:
             challengeList = await response.json()
@@ -58,7 +36,7 @@ async def getChallengePerRegion(region, data, session):
             )
 
     async with session.get(
-        f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/percentiles?api_key={config.apiKey}"
+        f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/percentiles?api_key={apiKey}"
     ) as response:
         if response.status == 200:
             challengePercentiles = await response.json()
@@ -78,9 +56,55 @@ async def getChallengePerRegion(region, data, session):
             challengePercentiles=challengePercentiles,
         )
 
-    createFolder(f"output/{region}")
-    with open(f"output/{region}/challenges.json", "w+") as file:
+    createFolder(f"output/challenges/{region}")
+    with open(f"output/challenges/{region}/raw.json", "w+") as file:
         file.write(json.dumps({"challenges": challenges, "titles": titles}))
+
+    if translateChallenges == False:
+        print(f"Challenges: {region} finished without translation. ")
+        return True
+
+    # Translate challenges
+    if len(challengeList) > 0:
+
+        for lang, value in challengeList[0]["localizedNames"].items():
+
+            translation = data
+
+            # en_US is loaded by default
+            if "en_US" != lang:
+                async with session.get(
+                    f"https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/{lang.lower()}/v1/challenges.json"
+                ) as response:
+                    if response.status == 200:
+                        translation = await response.json()
+                    else:
+                        print(
+                            f"WARN: CDragon challenge translation returned an error {response.status} for {lang}; The script will continue but the data could be falsified"
+                        )
+            translatedChallenge = challenges
+
+            # Loop through the challenge list and change the translatable parts
+            for challenge in challengeList:
+                translatedChallenge[str(challenge["id"])]["name"] = translation[
+                    "challenges"
+                ][str(challenge["id"])]["name"]
+                translatedChallenge[str(challenge["id"])]["description"] = translation[
+                    "challenges"
+                ][str(challenge["id"])]["description"]
+                translatedChallenge[str(challenge["id"])][
+                    "descriptionShort"
+                ] = translation["challenges"][str(challenge["id"])]["descriptionShort"]
+
+            # Translate the titles
+            translatedTitles = await getTitles(translation["titles"])
+
+            with open(f"output/challenges/{region}/{lang}.json", "w+") as file:
+                file.write(
+                    json.dumps(
+                        {"challenges": translatedChallenge, "titles": translatedTitles}
+                    )
+                )
 
     print(f"Challenges: {region} finished. ")
 
