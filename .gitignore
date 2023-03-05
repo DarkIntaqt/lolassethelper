@@ -1,0 +1,6 @@
+__pycache__/
+__cache__/
+
+output/
+config.py
+.DS_Store
