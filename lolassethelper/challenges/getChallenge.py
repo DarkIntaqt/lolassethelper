@@ -3,7 +3,7 @@ import re
 
 
 def removeTags(raw):
-    return re.sub(re.compile("<.*?>"), "", raw)
+    return re.compile(r"<[^>]+>").sub("", raw)
 
 
 async def getChallenge(
