@@ -1,5 +1,6 @@
 import asyncio
 import re
+from .retiredChallenges import retiredChallenges
 
 
 def removeTags(raw):
@@ -53,6 +54,10 @@ async def getChallenge(
 
     # Set queueId
     queueIds = challenge["queueIds"]
+
+    # set state to RETIRED if challenge is withing "reitred_challenges"
+    if challengeId in retiredChallenges:
+        state = "RETIRED"
 
     return {
         "id": challengeId,
