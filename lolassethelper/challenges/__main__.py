@@ -1,6 +1,7 @@
 import os
 import time
 import aiohttp
+import platform
 
 import asyncio
 from .challengesPerRegion import getChallengePerRegion
@@ -51,4 +52,7 @@ async def main():
 
 
 if __name__ == "__main__":
+    # Use selector event loop policy on any Windows kind platform to avoid RuntimeError
+    if any(platform.win32_ver()):
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())
