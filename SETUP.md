@@ -2,7 +2,7 @@
 
 First, download the repo. 
 
-Second, setup a virtual environment to install packages. Refer to [python docs](https://docs.python.org/3/library/venv.html) to determine your source activation command.
+Second, setup a virtual environment to install packages. Refer to [python docs](https://docs.python.org/3/library/venv.html#how-venvs-work) to determine your source activation command.
 ```bash
 python3 -m venv venv
 source venv/Scripts/activate # on Windows
