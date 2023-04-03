@@ -9,7 +9,7 @@ source venv/Scripts/activate # on Windows
 pip3 install -r requirements.txt
 ```
 
-Third, create a the config.py file `lolassethelper/config.py`. Copy the `config.example.py` file, remove the example from the file name and insert all the requested values
+Third, create the config.py file `lolassethelper/config.py`. Copy the `config.example.py` file, remove the example from the file name and insert all the requested values
 
 After that, you can already run the script (currently it only supports challenges):
 ```bash
