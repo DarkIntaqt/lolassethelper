@@ -1,4 +1,3 @@
-import asyncio
 import re
 from .retiredChallenges import retiredChallenges
 
@@ -10,7 +9,6 @@ def removeTags(raw):
 async def getChallenge(
     challengeId, challenge, session, region, challengeList, challengePercentiles
 ):
-
     # Check if the current challenge exists in the live api
     riotProvidedChallengeData = {}
     riotProvidedChallengePercentiles = {}

@@ -17,7 +17,6 @@ except ImportError:
 
 
 async def getChallengePerRegion(region, data, session):
-
     challenges = {}
     titles = await getTitles(data["titles"])
 
@@ -66,9 +65,7 @@ async def getChallengePerRegion(region, data, session):
 
     # Translate challenges
     if len(challengeList) > 0:
-
         for lang, value in challengeList[0]["localizedNames"].items():
-
             translation = data
 
             # en_US is loaded by default

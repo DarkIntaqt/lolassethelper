@@ -37,7 +37,6 @@ async def main():
         async with session.get(
             "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/challenges.json"
         ) as response:
-
             if response.status != 200:
                 return 404
 
