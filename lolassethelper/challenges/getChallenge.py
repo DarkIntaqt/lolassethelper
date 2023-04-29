@@ -16,6 +16,7 @@ async def getChallenge(
     challengePercentiles,
     apiKey,
     dynamicThresholds=False,
+    requestThreshold=0.8,
 ):
     # Check if the current challenge exists in the live api
     riotProvidedChallengeData = {}
@@ -71,11 +72,13 @@ async def getChallenge(
             url=f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/{challengeId}/leaderboards/by-level/MASTER?limit=1&api_key={apiKey}",
             region=region,
             session=session,
+            sleepThreshold=requestThreshold,
         )
         challengeChallengerThreshold = await rateLimitRequest(
             url=f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/{challengeId}/leaderboards/by-level/GRANDMASTER?limit=1&api_key={apiKey}",
             region=region,
             session=session,
+            sleepThreshold=requestThreshold,
         )
 
         if (

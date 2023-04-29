@@ -23,7 +23,6 @@ async def rateLimitRequest(url, region, session, sleepThreshold=0.8, retry=True)
         if response.status == 429:
             await asyncio.sleep(int(response.headers["Retry-After"]))
             if retry == True:
-                print("Retry")
                 return await rateLimitRequest(
                     url=url,
                     region=region,

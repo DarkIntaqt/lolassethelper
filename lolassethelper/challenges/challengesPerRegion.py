@@ -8,7 +8,12 @@ from .getTitles import getTitles
 
 
 try:
-    from ..config import apiKey, translateChallenges, dynamicThresholds
+    from ..config import (
+        apiKey,
+        translateChallenges,
+        dynamicThresholds,
+        rateLimitThreshold,
+    )
 except ImportError:
     # Check if the config exists
     print("ERROR: lolassethelper/config.py doesn't exist")
@@ -31,7 +36,7 @@ async def getChallengesPerRegion(region, data, session):
         url=f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/config?api_key={apiKey}",
         region=region,
         session=session,
-        sleepThreshold=0.8,
+        sleepThreshold=rateLimitThreshold,
     )
     if challengeListResponse != None:
         challengeList = challengeListResponse
@@ -57,6 +62,7 @@ async def getChallengesPerRegion(region, data, session):
             challengePercentiles=challengePercentiles,
             dynamicThresholds=dynamicThresholds,
             apiKey=apiKey,
+            requestThreshold=rateLimitThreshold,
         )
 
     createFolder(f"output/challenges/{region}")

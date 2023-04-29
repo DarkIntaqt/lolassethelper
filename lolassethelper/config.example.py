@@ -11,6 +11,9 @@
 # Insert your Riot Games API key here. Required
 apiKey = "YOUR KEY GOES HERE"
 
+# % of request where your requests are rate limited. Recommended 0 > threshold < 1
+# Default is 0.8
+rateLimitThreshold = 0.8
 
 ########################################
 # Config for lolassethelper.challenges #
