@@ -1,5 +1,6 @@
 import re
 from .retiredChallenges import retiredChallenges
+from ..helper.rateLimitRequest import rateLimitRequest
 
 
 def removeTags(raw):
@@ -7,7 +8,14 @@ def removeTags(raw):
 
 
 async def getChallenge(
-    challengeId, challenge, session, region, challengeList, challengePercentiles
+    challengeId,
+    challenge,
+    session,
+    region,
+    challengeList,
+    challengePercentiles,
+    apiKey,
+    dynamicThresholds=False,
 ):
     # Check if the current challenge exists in the live api
     riotProvidedChallengeData = {}
@@ -56,6 +64,33 @@ async def getChallenge(
     # set state to RETIRED if challenge is withing "reitred_challenges"
     if challengeId in retiredChallenges:
         state = "RETIRED"
+
+    # Dynamic Thresholds
+    if dynamicThresholds == True and challenge["leaderboard"] == True:
+        challengeGrandmasterThreshold = await rateLimitRequest(
+            url=f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/{challengeId}/leaderboards/by-level/MASTER?limit=1&api_key={apiKey}",
+            region=region,
+            session=session,
+        )
+        challengeChallengerThreshold = await rateLimitRequest(
+            url=f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/{challengeId}/leaderboards/by-level/GRANDMASTER?limit=1&api_key={apiKey}",
+            region=region,
+            session=session,
+        )
+
+        if (
+            challengeGrandmasterThreshold != None
+            and len(challengeGrandmasterThreshold) > 0
+        ):
+            thresholds["GRANDMASTER"] = challengeGrandmasterThreshold[0]["value"]
+
+        if (
+            challengeChallengerThreshold != None
+            and len(challengeChallengerThreshold) > 0
+        ):
+            thresholds["CHALLENGER"] = challengeChallengerThreshold[0]["value"]
+
+        print(f"Thresholds loaded for {challengeId}#{region}")
 
     return {
         "id": challengeId,

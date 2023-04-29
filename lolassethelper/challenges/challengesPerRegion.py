@@ -2,11 +2,13 @@ import os
 import asyncio
 import json
 from ..helper.createFolder import createFolder
+from ..helper.rateLimitRequest import rateLimitRequest
 from .getChallenge import getChallenge
 from .getTitles import getTitles
 
+
 try:
-    from ..config import apiKey, translateChallenges
+    from ..config import apiKey, translateChallenges, dynamicThresholds
 except ImportError:
     # Check if the config exists
     print("ERROR: lolassethelper/config.py doesn't exist")
@@ -24,25 +26,25 @@ async def getChallengesPerRegion(region, data, session):
     challengeList = []
     challengePercentiles = []
 
-    async with session.get(
-        f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/config?api_key={apiKey}"
-    ) as response:
-        if response.status == 200:
-            challengeList = await response.json()
-        else:
-            print(
-                f"WARN: Riot API challenge returned an error {response.status}; The script will continue but the data could be falsified"
-            )
+    # Fetch the list of challenges
+    challengeListResponse = await rateLimitRequest(
+        url=f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/config?api_key={apiKey}",
+        region=region,
+        session=session,
+        sleepThreshold=0.8,
+    )
+    if challengeListResponse != None:
+        challengeList = challengeListResponse
 
-    async with session.get(
-        f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/percentiles?api_key={apiKey}"
-    ) as response:
-        if response.status == 200:
-            challengePercentiles = await response.json()
-        else:
-            print(
-                f"WARN: Riot API challenge percentiles returned an error {response.status}; The script will continue but the data could be falsified"
-            )
+    # Fetch the list of percentiles
+    challengePercentilesResponse = await rateLimitRequest(
+        url=f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/config?api_key={apiKey}",
+        region=region,
+        session=session,
+        sleepThreshold=0.8,
+    )
+    if challengePercentilesResponse != None:
+        challengePercentiles = challengePercentilesResponse
 
     # Parse Challenges
     for challengeId, challenge in data["challenges"].items():
@@ -53,6 +55,8 @@ async def getChallengesPerRegion(region, data, session):
             region=region,
             challengeList=challengeList,
             challengePercentiles=challengePercentiles,
+            dynamicThresholds=dynamicThresholds,
+            apiKey=apiKey,
         )
 
     createFolder(f"output/challenges/{region}")
