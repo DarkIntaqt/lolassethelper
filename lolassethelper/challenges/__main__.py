@@ -4,7 +4,7 @@ import aiohttp
 import platform
 
 import asyncio
-from .challengesPerRegion import getChallengePerRegion
+from .challengesPerRegion import getChallengesPerRegion
 from ..helper.createFolder import createFolder
 
 regions = [
@@ -44,7 +44,7 @@ async def main():
 
         for region in regions:
             tasks.append(
-                asyncio.create_task(getChallengePerRegion(region, data, session))
+                asyncio.create_task(getChallengesPerRegion(region, data, session))
             )
 
         result = await asyncio.gather(*tasks)

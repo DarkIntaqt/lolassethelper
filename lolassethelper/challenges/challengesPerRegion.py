@@ -16,7 +16,7 @@ except ImportError:
     exit()
 
 
-async def getChallengePerRegion(region, data, session):
+async def getChallengesPerRegion(region, data, session):
     challenges = {}
     titles = await getTitles(data["titles"])
 
