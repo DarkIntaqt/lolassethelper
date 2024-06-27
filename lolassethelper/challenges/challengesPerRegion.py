@@ -28,8 +28,8 @@ async def getChallengesPerRegion(region, data, session):
     titles = await getTitles(data["titles"])
 
     # A list of challenges provided by the Riot API
-    challengeList = []
-    challengePercentiles = []
+    challengeList = {}
+    challengePercentiles = {}
 
     # Fetch the list of challenges
     challengeListResponse = await rateLimitRequest(
@@ -43,7 +43,7 @@ async def getChallengesPerRegion(region, data, session):
 
     # Fetch the list of percentiles
     challengePercentilesResponse = await rateLimitRequest(
-        url=f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/config?api_key={apiKey}",
+        url=f"https://{region}.api.riotgames.com/lol/challenges/v1/challenges/percentiles?api_key={apiKey}",
         region=region,
         session=session,
         sleepThreshold=0.8,
@@ -99,9 +99,9 @@ async def getChallengesPerRegion(region, data, session):
                 translatedChallenge[str(challenge["id"])]["description"] = translation[
                     "challenges"
                 ][str(challenge["id"])]["description"]
-                translatedChallenge[str(challenge["id"])][
-                    "descriptionShort"
-                ] = translation["challenges"][str(challenge["id"])]["descriptionShort"]
+                translatedChallenge[str(challenge["id"])]["descriptionShort"] = (
+                    translation["challenges"][str(challenge["id"])]["descriptionShort"]
+                )
 
             # Translate the titles
             translatedTitles = await getTitles(translation["titles"])
