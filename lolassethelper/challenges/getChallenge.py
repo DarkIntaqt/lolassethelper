@@ -71,8 +71,8 @@ async def getChallenge(
 
         s = link.split("/")
         if len(s) == 9:
-            if s[5].isnumeric() and int(s[5]) != imageId:
-                imageId = int(s[5])
+            if s[6].isnumeric() and int(s[6]) != challengeId:
+                imageId = int(s[6])
 
     # set state to RETIRED if challenge is withing "reitred_challenges"
     if challengeId in retiredChallenges:
