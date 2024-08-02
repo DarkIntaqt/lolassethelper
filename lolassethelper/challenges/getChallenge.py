@@ -62,6 +62,18 @@ async def getChallenge(
     # Set queueId
     queueIds = challenge["queueIds"]
 
+    # Set imageId
+    imageId = challengeId
+    if len(challenge["levelToIconPath"]) > 0:
+        link = challenge["levelToIconPath"][
+            list(challenge["levelToIconPath"].keys())[0]
+        ]
+
+        s = link.split("/")
+        if len(s) == 9:
+            if s[5].isnumeric() and int(s[5]) != imageId:
+                imageId = int(s[5])
+
     # set state to RETIRED if challenge is withing "reitred_challenges"
     if challengeId in retiredChallenges:
         state = "RETIRED"
@@ -97,6 +109,7 @@ async def getChallenge(
 
     return {
         "id": challengeId,
+        "imageId": imageId,
         "state": state,
         "name": removeTags(challenge["name"]),
         "description": removeTags(challenge["description"]),
