@@ -73,10 +73,10 @@ async def getChallengesPerRegion(region, data, session):
         print(f"Challenges: {region} finished without translation. ")
         return True
 
+    translation = data
     # Translate challenges
     if len(challengeList) > 0:
-        for lang, value in challengeList[0]["localizedNames"].items():
-            translation = data
+        for lang, _ in challengeList[0]["localizedNames"].items():
 
             # en_US is loaded by default
             if "en_US" != lang:
@@ -93,15 +93,28 @@ async def getChallengesPerRegion(region, data, session):
 
             # Loop through the challenge list and change the translatable parts
             for challenge in challengeList:
-                translatedChallenge[str(challenge["id"])]["name"] = translation[
-                    "challenges"
-                ][str(challenge["id"])]["name"]
-                translatedChallenge[str(challenge["id"])]["description"] = translation[
-                    "challenges"
-                ][str(challenge["id"])]["description"]
-                translatedChallenge[str(challenge["id"])]["descriptionShort"] = (
-                    translation["challenges"][str(challenge["id"])]["descriptionShort"]
-                )
+                challengeId = str(challenge["id"])
+                try:
+                    translatedChallenge[challengeId]["name"] = translation[
+                        "challenges"
+                    ][challengeId]["name"]
+                    translatedChallenge[challengeId]["description"] = translation[
+                        "challenges"
+                    ][challengeId]["description"]
+                    translatedChallenge[challengeId]["descriptionShort"] = translation[
+                        "challenges"
+                    ][challengeId]["descriptionShort"]
+                except KeyError as e:
+                    print(e)
+                    translatedChallenge[challengeId]["name"] = (
+                        "Not found (#" + challengeId + ")"
+                    )
+                    translatedChallenge[challengeId]["description"] = (
+                        "Check out the description for " + challengeId + " later"
+                    )
+                    translatedChallenge[challengeId]["descriptionShort"] = (
+                        "Check out the description for " + challengeId + " later"
+                    )
 
             # Translate the titles
             translatedTitles = await getTitles(translation["titles"])
