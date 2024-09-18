@@ -94,6 +94,8 @@ async def getChallengesPerRegion(region, data, session):
             # Loop through the challenge list and change the translatable parts
             for challenge in challengeList:
                 challengeId = str(challenge["id"])
+                if challengeId not in translatedChallenge:
+                    continue
                 try:
                     translatedChallenge[challengeId]["name"] = translation[
                         "challenges"
